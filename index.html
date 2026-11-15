@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TERLAHIR FINANCE — One Platform. Complete Financial Control.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .tabular-currency { font-variant-numeric: tabular-nums; }
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,.25); border-radius: 9999px; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeInUp .25s ease-out; }
+    @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+    .pulse-dot { animation: pulseDot 1.8s ease-in-out infinite; }
+    @media print {
+      aside, header, #toast-container, #modal-backdrop, .no-print { display: none !important; }
+      body { background: #fff !important; }
+      #main-content { padding: 0 !important; max-width: 100% !important; }
+      .rounded-2xl, .rounded-xl { break-inside: avoid; page-break-inside: avoid; }
+    }
+    ::selection { background: #0d9488; color: #fff; }
+    input:focus, select:focus, textarea:focus { outline: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Modal Backdrop -->
+  <div id="modal-backdrop" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div id="modal-box" class="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-8"></div>
+  </div>
+
+  <!-- App Shell -->
+  <div class="flex min-h-screen overflow-x-hidden">
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" onclick="toggleMobileSidebar(false)" class="fixed inset-0 z-30 hidden bg-slate-950/50 lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-[#0B132B] text-slate-200 transition-transform duration-200 lg:static lg:translate-x-0 shrink-0 border-r border-slate-800">
+      <div class="flex h-16 items-center justify-between px-5 border-b border-slate-800/80">
+        <div class="flex items-center gap-3">
+          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 font-bold text-white shadow-sm">TF</div>
+          <div>
+            <div class="text-sm font-bold tracking-wide text-white">TERLAHIR FINANCE</div>
+            <div class="text-[11px] text-slate-400">Complete Financial Control</div>
+          </div>
+        </div>
+        <button onclick="toggleMobileSidebar(false)" class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 lg:hidden" aria-label="Tutup Menu">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="mx-4 mt-4 rounded-xl bg-[#1C2541] p-3.5 border border-slate-700/60">
+        <div class="flex items-center justify-between gap-2">
+          <span id="sidebar-org-name" class="truncate text-xs font-semibold text-white">PT Terlahir Teknologi</span>
+          <span id="sidebar-plan-badge" class="shrink-0 rounded-md bg-teal-500/20 px-2 py-0.5 text-[10px] font-semibold text-teal-300 border border-teal-500/30">Pro</span>
+        </div>
+        <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-400">
+          <span id="sidebar-role-label">Head of Finance</span>
+          <span>IDR • WIB</span>
+        </div>
+      </div>
+
+      <nav id="sidebar-nav" class="sidebar-scroll flex-1 space-y-1 overflow-y-auto px-3 py-4"></nav>
+
+      <div class="border-t border-slate-800/80 p-3">
+        <button onclick="navigate('super_admin')" id="nav-super_admin" class="w-full flex items-center justify-between rounded-xl bg-amber-500/10 px-3 py-2.5 text-xs font-medium text-amber-300 hover:bg-amber-500/20 border border-amber-500/25 transition">
+          <span class="flex items-center gap-2">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            SaaS Super Admin
+          </span>
+          <span class="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px]">Terisolasi</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Workspace -->
+    <div class="flex flex-1 flex-col min-w-0">
+      <header class="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-slate-200 bg-white/95 backdrop-blur px-4 sm:px-6 no-print">
+        <div class="flex items-center gap-3 min-w-0">
+          <button onclick="toggleMobileSidebar(true)" class="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 lg:hidden" aria-label="Buka Menu">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+
+          <div class="flex items-center gap-2">
+            <label for="org-switcher" class="hidden sm:inline text-xs font-medium text-slate-500">Organisasi:</label>
+            <select id="org-switcher" onchange="switchOrganization(this.value)" class="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-800 focus:border-[#0B132B] focus:ring-2 focus:ring-[#0B132B]/10 transition">
+            </select>
+            <button onclick="openNewOrgModal()" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition" title="Buat Organisasi Baru">+ Org</button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50/70 px-2.5 py-1">
+            <span class="hidden md:inline text-[11px] font-medium text-indigo-800">Simulasi Peran:</span>
+            <select id="role-switcher" onchange="switchActiveUserRole(this.value)" class="bg-transparent text-xs font-semibold text-indigo-950 focus:outline-none cursor-pointer">
+              <option value="head_of_finance">Head of Finance (Approver)</option>
+              <option value="finance_staff">Finance Staff (Maker)</option>
+              <option value="org_owner">Organization Owner</option>
+              <option value="accountant">Accountant</option>
+              <option value="viewer">Viewer (Read-Only)</option>
+            </select>
+          </div>
+
+          <!-- Notification center -->
+          <div class="relative">
+            <button id="notif-btn" onclick="toggleNotifications(event)" class="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 transition" title="Pusat Persetujuan & Notifikasi">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              <span id="pending-badge-dot" class="hidden absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white pulse-dot">0</span>
+            </button>
+            <div id="notif-dropdown" class="hidden absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6"></main>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. SAAS PLANS & RBAC
+    // =========================================================================
+    const SUBSCRIPTION_PLANS = {
+      free:       { code:'free',       name:'Free',       price:0,      limits:{maxMembers:1,maxAccounts:2,maxProjects:2},   features:{doubleEntry:false, approvalWorkflow:false, exportExcel:false} },
+      starter:    { code:'starter',    name:'Starter',    price:49000,  limits:{maxMembers:3,maxAccounts:5,maxProjects:10},  features:{doubleEntry:true,  approvalWorkflow:false, exportExcel:true} },
+      pro:        { code:'pro',        name:'Pro',        price:149000, limits:{maxMembers:10,maxAccounts:15,maxProjects:50},features:{doubleEntry:true,  approvalWorkflow:true,  exportExcel:true} },
+      business:   { code:'business',   name:'Business',   price:349000, limits:{maxMembers:35,maxAccounts:999,maxProjects:999},features:{doubleEntry:true, approvalWorkflow:true,  exportExcel:true} },
+      enterprise: { code:'enterprise', name:'Enterprise', price:0, custom:true, limits:{maxMembers:999,maxAccounts:999,maxProjects:999}, features:{doubleEntry:true, approvalWorkflow:true, exportExcel:true} }
+    };
+
+    const ROLE_DEFINITIONS = {
+      org_owner: { name:'Organization Owner', userId:'usr_owner', userName:'Raka Pratama (Owner)', permissions:['*'] },
+      head_of_finance: { name:'Head of Finance', userId:'usr_hof', userName:'Siti Rahmawati (Head of Finance)', permissions:[
+        'dashboard.view','transactions.view','transactions.create','transactions.submit','transactions.approve','transactions.reject','transactions.export',
+        'accounts.view','accounts.manage','invoices.view','invoices.manage','projects.view','projects.manage','budgets.view','budgets.manage',
+        'accounting.view','accounting.post','reports.view','reports.export','settings.view','billing.manage'
+      ]},
+      finance_staff: { name:'Finance Staff', userId:'usr_staff', userName:'Budi Santoso (Finance Staff)', permissions:[
+        'dashboard.view','transactions.view','transactions.create','transactions.submit','accounts.view','invoices.view','invoices.manage','projects.view','reports.view'
+      ]},
+      accountant: { name:'Accountant', userId:'usr_acc', userName:'Nadia Kusuma (Accountant)', permissions:[
+        'dashboard.view','transactions.view','accounts.view','accounting.view','accounting.post','reports.view','reports.export','budgets.view'
+      ]},
+      viewer: { name:'Viewer (Auditor)', userId:'usr_viewer', userName:'Auditor Eksternal', permissions:[
+        'dashboard.view','transactions.view','accounts.view','invoices.view','projects.view','budgets.view','accounting.view','reports.view'
+      ]}
+    };
+
+    // =========================================================================
+    // 2. MULTI-TENANT DB
+    // =========================================================================
+    const DB = {
+      activeOrgId: 'org_terlahir_tech',
+      activeRoleCode: 'head_of_finance',
+      currentRoute: 'dashboard',
+      txFilterStatus: 'ALL',
+      txSearch: '',
+
+      organizations: [
+        { id:'org_terlahir_tech', name:'PT Terlahir Teknologi Nusantara', slug:'pt-terlahir-teknologi', npwp:'09.452.118.4-432.000', industry:'Software & Konsultan IT', planCode:'pro', subscriptionStatus:'active', periodEnd:'15/12/2026' },
+        { id:'org_kopi_senja', name:'CV Kopi Senja Sejahtera', slug:'cv-kopi-senja', npwp:'08.112.904.1-407.000', industry:'F&B & Roastery UMKM', planCode:'starter', subscriptionStatus:'trialing', periodEnd:'29/11/2026' }
+      ],
+
+      accounts: [
+        { id:'acc_1', organization_id:'org_terlahir_tech', name:'Bank BCA Bisnis Utama', type:'Bank', number:'8820-9912-01', openingBalance:120000000 },
+        { id:'acc_2', organization_id:'org_terlahir_tech', name:'Bank Mandiri Giro Operasional', type:'Bank', number:'124-00-981234-5', openingBalance:65000000 },
+        { id:'acc_3', organization_id:'org_terlahir_tech', name:'Kas Kecil Kantor (Petty Cash)', type:'Petty Cash', number:'CASH-001', openingBalance:5000000 },
+        { id:'acc_4', organization_id:'org_kopi_senja', name:'Bank BRI UMKM', type:'Bank', number:'0341-01-009812-50', openingBalance:28000000 },
+        { id:'acc_5', organization_id:'org_kopi_senja', name:'Kas Kasir Outlet Bekasi', type:'Cash', number:'CASH-OUTLET-1', openingBalance:3500000 }
+      ],
+
+      transfers: [
+        { id:'trf_1', organization_id:'org_terlahir_tech', fromAccountId:'acc_1', toAccountId:'acc_3', amount:3000000, date:'05/11/2026', reference:'TRF-202611-001', note:'Pengisian saldo Petty Cash operasional November' }
+      ],
+
+      projects: [
+        { id:'prj_1', organization_id:'org_terlahir_tech', name:'Implementasi ERP Logistik PT Maju', client:'PT Maju Bersama', contractValue:185000000, budget:95000000 },
+        { id:'prj_2', organization_id:'org_terlahir_tech', name:'Pengembangan Aplikasi Mobile Fintech', client:'PT Dana Kilat', contractValue:240000000, budget:130000000 },
+        { id:'prj_3', organization_id:'org_kopi_senja', name:'Ekspansi Booth Kopi Summarecon', client:'Internal Retail', contractValue:45000000, budget:32000000 }
+      ],
+
+      transactions: [
+        { id:'tx_101', organization_id:'org_terlahir_tech', type:'income', category:'Pendapatan Jasa Proyek', amount:92500000, date:'02/11/2026', reference:'TRX-202611-001', description:'Termin 1 Implementasi ERP Logistik PT Maju', accountId:'acc_1', projectId:'prj_1', status:'Approved', createdBy:'usr_staff', createdByName:'Budi Santoso (Finance Staff)', approvedBy:'usr_hof', approvedByName:'Siti Rahmawati (Head of Finance)', approvedAt:'02/11/2026 14:20 WIB' },
+        { id:'tx_102', organization_id:'org_terlahir_tech', type:'expense', category:'Infrastruktur Cloud & Domain', amount:14800000, date:'06/11/2026', reference:'TRX-202611-002', description:'Tagihan AWS Production & Database Cluster', accountId:'acc_2', projectId:'prj_1', status:'Approved', createdBy:'usr_staff', createdByName:'Budi Santoso (Finance Staff)', approvedBy:'usr_hof', approvedByName:'Siti Rahmawati (Head of Finance)', approvedAt:'06/11/2026 10:05 WIB' },
+        { id:'tx_103', organization_id:'org_terlahir_tech', type:'expense', category:'Gaji & Tenaga Ahli', amount:42000000, date:'10/11/2026', reference:'TRX-202611-003', description:'Honorarium Tim Engineer Sprint 4', accountId:'acc_1', projectId:'prj_2', status:'Approved', createdBy:'usr_staff', createdByName:'Budi Santoso (Finance Staff)', approvedBy:'usr_hof', approvedByName:'Siti Rahmawati (Head of Finance)', approvedAt:'10/11/2026 16:45 WIB' },
+        { id:'tx_104', organization_id:'org_terlahir_tech', type:'expense', category:'Pemasaran & Akuisisi Klien', amount:8500000, date:'14/11/2026', reference:'TRX-202611-004', description:'Sponsorship Konferensi Fintech Jakarta', accountId:'acc_2', projectId:'', status:'Pending Approval', createdBy:'usr_staff', createdByName:'Budi Santoso (Finance Staff)', approvedBy:null, approvedByName:null, approvedAt:null },
+        { id:'tx_105', organization_id:'org_terlahir_tech', type:'expense', category:'Operasional Kantor', amount:2200000, date:'15/11/2026', reference:'TRX-202611-005', description:'Pembelian ATK dan kebutuhan pantry', accountId:'acc_3', projectId:'', status:'Draft', createdBy:'usr_staff', createdByName:'Budi Santoso (Finance Staff)', approvedBy:null, approvedByName:null, approvedAt:null },
+        { id:'tx_106', organization_id:'org_terlahir_tech', type:'expense', category:'Pemasaran & Akuisisi Klien', amount:12000000, date:'12/11/2026', reference:'TRX-202611-006', description:'Biaya iklan LinkedIn Ads', accountId:'acc_2', projectId:'', status:'Rejected', rejectionReason:'Anggaran pemasaran bulan ini sudah terlampaui 85%. Mohon ajukan ulang bulan depan.', createdBy:'usr_staff', createdByName:'Budi Santoso (Finance Staff)', approvedBy:'usr_hof', approvedByName:'Siti Rahmawati (Head of Finance)', approvedAt:'12/11/2026 09:30 WIB' },
+        { id:'tx_201', organization_id:'org_kopi_senja', type:'income', category:'Penjualan Biji Kopi & Minuman', amount:18400000, date:'11/11/2026', reference:'KS-202611-001', description:'Rekap Penjualan B2B Cafe Partner Minggu 1-2', accountId:'acc_4', projectId:'prj_3', status:'Approved', createdBy:'usr_owner', createdByName:'Raka Pratama (Owner)', approvedBy:'usr_hof', approvedByName:'Siti Rahmawati', approvedAt:'11/11/2026 18:00 WIB' }
+      ],
+
+      invoices: [
+        { id:'inv_1', organization_id:'org_terlahir_tech', number:'INV/2026/11/001', clientName:'PT Maju Bersama', issueDate:'01/11/2026', dueDate:'15/11/2026', subtotal:92500000, taxRate:11, paidAmount:102675000, status:'Paid' },
+        { id:'inv_2', organization_id:'org_terlahir_tech', number:'INV/2026/11/002', clientName:'PT Dana Kilat', issueDate:'08/11/2026', dueDate:'22/11/2026', subtotal:120000000, taxRate:11, paidAmount:60000000, status:'Partially Paid' },
+        { id:'inv_3', organization_id:'org_terlahir_tech', number:'INV/2026/10/019', clientName:'CV Nusantara Digital', issueDate:'10/10/2026', dueDate:'25/10/2026', subtotal:25000000, taxRate:11, paidAmount:0, status:'Overdue' },
+        { id:'inv_4', organization_id:'org_terlahir_tech', number:'INV/2026/11/003', clientName:'PT Sinar Jaya Abadi', issueDate:'18/11/2026', dueDate:'02/12/2026', subtotal:45000000, taxRate:11, paidAmount:0, status:'Draft' }
+      ],
+
+      budgets: [
+        { id:'bdg_1', organization_id:'org_terlahir_tech', department:'Operasional & Cloud', category:'Infrastruktur Cloud & Domain', allocated:25000000, period:'November 2026' },
+        { id:'bdg_2', organization_id:'org_terlahir_tech', department:'Engineering', category:'Gaji & Tenaga Ahli', allocated:50000000, period:'November 2026' },
+        { id:'bdg_3', organization_id:'org_terlahir_tech', department:'Marketing', category:'Pemasaran & Akuisisi Klien', allocated:10000000, period:'November 2026' }
+      ],
+
+      auditLogs: [
+        { id:'aud_1', organization_id:'org_terlahir_tech', timestamp:'14/11/2026 09:15 WIB', actor:'Budi Santoso (Finance Staff)', action:'transaction.submitted', detail:'Mengajukan TRX-202611-004 senilai Rp 8.500.000 untuk persetujuan' },
+        { id:'aud_2', organization_id:'org_terlahir_tech', timestamp:'10/11/2026 16:45 WIB', actor:'Siti Rahmawati (Head of Finance)', action:'transaction.approved', detail:'Menyetujui TRX-202611-003 (Honorarium Tim Engineer Sprint 4)' },
+        { id:'aud_3', organization_id:'org_terlahir_tech', timestamp:'05/11/2026 11:10 WIB', actor:'Siti Rahmawati (Head of Finance)', action:'account.transfer', detail:'Transfer internal TRF-202611-001 sebesar Rp 3.000.000' }
+      ]
+    };
+
+    // =========================================================================
+    // 3. HELPERS
+    // =========================================================================
+    function formatIDR(num) {
+      return new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', minimumFractionDigits:0, maximumFractionDigits:0 }).format(num || 0);
+    }
+    function getCurrentOrg() { return DB.organizations.find(o => o.id === DB.activeOrgId) || DB.organizations[0]; }
+    function getCurrentRole() { return ROLE_DEFINITIONS[DB.activeRoleCode]; }
+    function hasPermission(permCode) {
+      const role = getCurrentRole();
+      if (!role) return false;
+      return role.permissions.includes('*') || role.permissions.includes(permCode);
+    }
+    function hasPlanFeature(key) {
+      const org = getCurrentOrg();
+      const plan = SUBSCRIPTION_PLANS[org.planCode] || SUBSCRIPTION_PLANS.free;
+      return Boolean(plan.features[key]);
+    }
+    function getOrgAccounts() { return DB.accounts.filter(a => a.organization_id === DB.activeOrgId); }
+    function getOrgTransactions() { return DB.transactions.filter(t => t.organization_id === DB.activeOrgId); }
+    function getOrgTransfers() { return DB.transfers.filter(tr => tr.organization_id === DB.activeOrgId); }
+    function getOrgProjects() { return DB.projects.filter(p => p.organization_id === DB.activeOrgId); }
+    function getOrgInvoices() { return DB.invoices.filter(i => i.organization_id === DB.activeOrgId); }
+    function getOrgBudgets() { return DB.budgets.filter(b => b.organization_id === DB.activeOrgId); }
+    function getOrgAuditLogs() { return DB.auditLogs.filter(l => l.organization_id === DB.activeOrgId); }
+
+    function computeAccountBalance(accountId) {
+      const acc = DB.accounts.find(a => a.id === accountId);
+      if (!acc) return 0;
+      let bal = acc.openingBalance;
+      DB.transactions
+        .filter(t => t.organization_id === acc.organization_id && t.accountId === accountId && t.status === 'Approved')
+        .forEach(t => { bal += t.type === 'income' ? t.amount : -t.amount; });
+      DB.transfers
+        .filter(tr => tr.organization_id === acc.organization_id)
+        .forEach(tr => {
+          if (tr.fromAccountId === accountId) bal -= tr.amount;
+          if (tr.toAccountId === accountId) bal += tr.amount;
+        });
+      return bal;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-emerald-900 text-white border-emerald-700',
+        error:   'bg-rose-900 text-white border-rose-700',
+        warning: 'bg-amber-900 text-white border-amber-700',
+        info:    'bg-[#0B132B] text-white border-slate-700'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto rounded-xl border px-4 py-3 text-xs sm:text-sm font-medium shadow-lg transition-all duration-300 ${colors[type] || colors.info}`;
+      el.textContent = message;
+      container.appendChild(el);
+      requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(6px)';
+        setTimeout(() => el.remove(), 300);
+      }, 3600);
+    }
+
+    function logAudit(action, detail) {
+      const role = getCurrentRole();
+      DB.auditLogs.unshift({
+        id: 'aud_' + Date.now(),
+        organization_id: DB.activeOrgId,
+        timestamp: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toTimeString().slice(0, 5) + ' WIB',
+        actor: role.userName, action, detail
+      });
+    }
+
+    function openModal(html) {
+      document.getElementById('modal-box').innerHTML = html;
+      document.getElementById('modal-backdrop').classList.remove('hidden');
+    }
+    function closeModal() { document.getElementById('modal-backdrop').classList.add('hidden'); }
+
+    function confirmDialog(title, message, onConfirm, confirmLabel = 'Ya, Lanjutkan', danger = true) {
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">${title}</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <div class="p-6 space-y-4">
+          <p class="text-sm text-slate-700">${message}</p>
+          <div class="flex justify-end gap-2">
+            <button onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Batal</button>
+            <button id="confirm-btn" class="rounded-xl ${danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#0B132B] hover:bg-[#1C2541]'} px-4 py-2 text-xs font-semibold text-white">${confirmLabel}</button>
+          </div>
+        </div>
+      `);
+      document.getElementById('confirm-btn').addEventListener('click', () => { closeModal(); onConfirm(); });
+    }
+
+    // =========================================================================
+    // 4. NAVIGATION
+    // =========================================================================
+    const NAV_ITEMS = [
+      { id:'dashboard',    label:'Dashboard Eksekutif',        icon:'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', permission:'dashboard.view' },
+      { id:'transactions', label:'Transaksi',                  icon:'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4', permission:'transactions.view' },
+      { id:'approvals',    label:'Pusat Persetujuan',          icon:'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', permission:'transactions.view', badge:true },
+      { id:'cash_bank',    label:'Kas & Bank',                 icon:'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z', permission:'accounts.view' },
+      { id:'invoices',     label:'Invoice & Penagihan',        icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', permission:'invoices.view' },
+      { id:'projects',     label:'Keuangan Proyek',            icon:'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z', permission:'projects.view' },
+      { id:'budgets',      label:'Perencanaan Anggaran',       icon:'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z', permission:'budgets.view' },
+      { id:'accounting',   label:'Akuntansi (Double-Entry)',   icon:'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', permission:'accounting.view' },
+      { id:'reports',      label:'Laporan Keuangan',           icon:'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', permission:'reports.view' },
+      { id:'settings',     label:'Pengaturan & Langganan',     icon:'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', permission:'settings.view' }
+    ];
+
+    function toggleMobileSidebar(open) {
+      const sb = document.getElementById('sidebar');
+      const ov = document.getElementById('mobile-overlay');
+      if (open) { sb.classList.remove('-translate-x-full'); ov.classList.remove('hidden'); }
+      else { sb.classList.add('-translate-x-full'); ov.classList.add('hidden'); }
+    }
+    function navigate(routeId) { DB.currentRoute = routeId; toggleMobileSidebar(false); renderApp(); }
+    function switchOrganization(orgId) {
+      DB.activeOrgId = orgId;
+      showToast(`Beralih ke ruang kerja terisolasi: ${getCurrentOrg().name}`, 'info');
+      renderApp();
+    }
+    function switchActiveUserRole(roleCode) {
+      DB.activeRoleCode = roleCode;
+      const nav = NAV_ITEMS.find(n => n.id === DB.currentRoute);
+      if (nav && nav.permission && !hasPermission(nav.permission)) DB.currentRoute = 'dashboard';
+      if (DB.currentRoute === 'settings' && !hasPermission('settings.view')) DB.currentRoute = 'dashboard';
+      showToast(`Peran aktif diubah menjadi: ${getCurrentRole().name}`, 'info');
+      renderApp();
+    }
+
+    // =========================================================================
+    // 5. SHELL RENDERING
+    // =========================================================================
+    function renderShell() {
+      const org = getCurrentOrg();
+      const role = getCurrentRole();
+      const plan = SUBSCRIPTION_PLANS[org.planCode] || SUBSCRIPTION_PLANS.free;
+      const pendingCount = getOrgTransactions().filter(t => t.status === 'Pending Approval').length;
+
+      document.getElementById('org-switcher').innerHTML = DB.organizations
+        .map(o => `<option value="${o.id}" ${o.id === DB.activeOrgId ? 'selected' : ''}>${o.name}</option>`).join('');
+      document.getElementById('role-switcher').value = DB.activeRoleCode;
+
+      document.getElementById('sidebar-org-name').textContent = org.name;
+      document.getElementById('sidebar-plan-badge').textContent = plan.name;
+      document.getElementById('sidebar-role-label').textContent = role.name;
+
+      const dot = document.getElementById('pending-badge-dot');
+      if (pendingCount > 0) { dot.textContent = pendingCount; dot.classList.remove('hidden'); }
+      else dot.classList.add('hidden');
+
+      // Permission-filtered nav
+      const visibleNav = NAV_ITEMS.filter(item => !item.permission || hasPermission(item.permission));
+      document.getElementById('sidebar-nav').innerHTML = visibleNav.map(item => {
+        const active = DB.currentRoute === item.id;
+        return `
+          <button onclick="navigate('${item.id}')" class="w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium transition ${
+            active ? 'bg-teal-600/20 text-white border border-teal-500/35' : 'text-slate-300 hover:bg-[#1C2541] hover:text-white border border-transparent'
+          }">
+            <span class="flex items-center gap-3 truncate">
+              <svg class="h-4 w-4 shrink-0 ${active ? 'text-teal-400' : 'text-slate-400'}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="${item.icon}"/>
+              </svg>
+              <span class="truncate">${item.label}</span>
+            </span>
+            ${item.badge && pendingCount > 0 ? `<span class="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-slate-950">${pendingCount}</span>` : ''}
+          </button>`;
+      }).join('');
+
+      // Notification dropdown content
+      const pending = getOrgTransactions().filter(t => t.status === 'Pending Approval');
+      const recentLogs = getOrgAuditLogs().slice(0, 4);
+      document.getElementById('notif-dropdown').innerHTML = `
+        <div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-900">Notifikasi & Antrean</span>
+          <span class="rounded-full bg-amber-100 text-amber-800 px-2 py-0.5 text-[10px] font-semibold">${pending.length} pending</span>
+        </div>
+        <div class="max-h-72 overflow-y-auto">
+          ${pending.length === 0 ? `<div class="px-4 py-6 text-center text-xs text-slate-500">Tidak ada transaksi menunggu persetujuan.</div>` : pending.map(t => `
+            <button onclick="navigate('approvals'); document.getElementById('notif-dropdown').classList.add('hidden')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 border-b border-slate-100">
+              <div class="text-xs font-semibold text-slate-900">${t.reference} • ${formatIDR(t.amount)}</div>
+              <div class="text-[11px] text-slate-600 truncate">${t.description}</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">oleh ${t.createdByName}</div>
+            </button>
+          `).join('')}
+        </div>
+        <div class="px-4 py-2 border-t border-slate-200 bg-slate-50">
+          <div class="text-[10px] font-bold uppercase text-slate-500 mb-1">Aktivitas Terakhir</div>
+          ${recentLogs.map(l => `<div class="text-[11px] text-slate-600 truncate py-0.5">• ${l.detail}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    function toggleNotifications(e) {
+      e.stopPropagation();
+      document.getElementById('notif-dropdown').classList.toggle('hidden');
+    }
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('notif-dropdown');
+      if (dd && !dd.classList.contains('hidden') && !dd.contains(e.target)) dd.classList.add('hidden');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        const dd = document.getElementById('notif-dropdown');
+        if (dd) dd.classList.add('hidden');
+      }
+    });
+
+    // =========================================================================
+    // 6. VIEWS
+    // =========================================================================
+
+    function renderStatusBadge(status) {
+      const styles = {
+        'Approved':'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'Paid':'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'Sent':'bg-sky-50 text-sky-700 border-sky-200',
+        'Pending Approval':'bg-amber-50 text-amber-700 border-amber-200',
+        'Partially Paid':'bg-amber-50 text-amber-700 border-amber-200',
+        'Draft':'bg-slate-100 text-slate-700 border-slate-200',
+        'Rejected':'bg-rose-50 text-rose-700 border-rose-200',
+        'Overdue':'bg-rose-50 text-rose-700 border-rose-200',
+        'Reversed':'bg-purple-50 text-purple-700 border-purple-200',
+        'trialing':'bg-amber-50 text-amber-700 border-amber-200',
+        'active':'bg-emerald-50 text-emerald-700 border-emerald-200'
+      };
+      return `<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${styles[status] || styles.Draft}">${status}</span>`;
+    }
+
+    // ---- DASHBOARD ----
+    function renderDashboard() {
+      const org = getCurrentOrg();
+      const txs = getOrgTransactions();
+      const approvedTxs = txs.filter(t => t.status === 'Approved');
+      const pendingTxs = txs.filter(t => t.status === 'Pending Approval');
+      const accounts = getOrgAccounts();
+      const invoices = getOrgInvoices();
+      const projects = getOrgProjects();
+
+      const totalRevenue = approvedTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+      const totalExpense = approvedTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+      const netProfit = totalRevenue - totalExpense;
+      const totalCashBank = accounts.reduce((s, a) => s + computeAccountBalance(a.id), 0);
+      const outstandingReceivables = invoices
+        .filter(i => ['Sent','Partially Paid','Overdue'].includes(i.status))
+        .reduce((s, i) => s + ((i.subtotal * (1 + i.taxRate / 100)) - i.paidAmount), 0);
+      const maxFlow = Math.max(totalRevenue, totalExpense, 1);
+
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="text-xs font-medium text-slate-500">TERLAHIR FINANCE / Ringkasan Eksekutif</div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Dashboard Keuangan — ${org.name}</h1>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            ${hasPermission('transactions.create') ? `<button onclick="openNewTransactionModal()" class="rounded-xl bg-[#0B132B] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#1C2541] transition">+ Catat Transaksi</button>` : ''}
+            <button onclick="navigate('reports')" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">Laporan Keuangan</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="text-xs font-medium text-slate-500">Total Pendapatan (Approved)</div>
+            <div class="mt-2 text-xl sm:text-2xl font-bold text-emerald-700 tabular-currency">${formatIDR(totalRevenue)}</div>
+            <div class="mt-2 text-[11px] text-slate-400">Hanya transaksi berstatus Approved</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="text-xs font-medium text-slate-500">Total Pengeluaran (Approved)</div>
+            <div class="mt-2 text-xl sm:text-2xl font-bold text-rose-700 tabular-currency">${formatIDR(totalExpense)}</div>
+            <div class="mt-2 text-[11px] text-slate-400">Tidak termasuk transfer internal</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="text-xs font-medium text-slate-500">Laba Bersih (Net Profit)</div>
+            <div class="mt-2 text-xl sm:text-2xl font-bold ${netProfit >= 0 ? 'text-slate-900' : 'text-rose-700'} tabular-currency">${formatIDR(netProfit)}</div>
+            <div class="mt-2 text-[11px] text-teal-700 font-medium">Margin: ${totalRevenue > 0 ? Math.round((netProfit / totalRevenue) * 100) : 0}%</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="text-xs font-medium text-slate-500">Total Saldo Kas & Bank</div>
+            <div class="mt-2 text-xl sm:text-2xl font-bold text-[#0B132B] tabular-currency">${formatIDR(totalCashBank)}</div>
+            <div class="mt-2 text-[11px] text-slate-500">${accounts.length} rekening aktif terpantau</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-medium text-slate-500">Piutang Belum Tertagih</div>
+              <div class="mt-1 text-lg font-bold text-slate-900 tabular-currency">${formatIDR(outstandingReceivables)}</div>
+            </div>
+            <button onclick="navigate('invoices')" class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition">Lihat Invoice</button>
+          </div>
+          <div class="rounded-2xl border border-amber-200 bg-amber-50/60 p-5 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-medium text-amber-800">Menunggu Persetujuan</div>
+              <div class="mt-1 text-lg font-bold text-amber-950">${pendingTxs.length} Transaksi</div>
+            </div>
+            <button onclick="navigate('approvals')" class="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700 transition">Tinjau</button>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-medium text-slate-500">Proyek Aktif</div>
+              <div class="mt-1 text-lg font-bold text-slate-900">${projects.length} Proyek</div>
+            </div>
+            <button onclick="navigate('projects')" class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition">Profitabilitas</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Cash flow chart -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-bold text-slate-900">Arus Kas Periode Berjalan</h2>
+              <span class="text-[11px] text-slate-400">Approved only</span>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between text-xs mb-1.5">
+                  <span class="font-medium text-emerald-700">Pemasukan</span>
+                  <span class="font-bold text-slate-900 tabular-currency">${formatIDR(totalRevenue)}</span>
+                </div>
+                <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600" style="width:${Math.round(totalRevenue / maxFlow * 100)}%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1.5">
+                  <span class="font-medium text-rose-700">Pengeluaran</span>
+                  <span class="font-bold text-slate-900 tabular-currency">${formatIDR(totalExpense)}</span>
+                </div>
+                <div class="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-rose-400 to-rose-600" style="width:${Math.round(totalExpense / maxFlow * 100)}%"></div>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-slate-100 flex justify-between text-xs">
+                <span class="text-slate-600">Net Cash Flow</span>
+                <span class="font-bold tabular-currency ${netProfit >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${formatIDR(netProfit)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accounts breakdown -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-bold text-slate-900">Posisi Kas & Bank</h2>
+              <button onclick="navigate('cash_bank')" class="text-xs font-semibold text-teal-700 hover:underline">Kelola</button>
+            </div>
+            <div class="space-y-2.5">
+              ${accounts.map(acc => {
+                const bal = computeAccountBalance(acc.id);
+                return `
+                  <div class="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-semibold text-slate-800 truncate">${acc.name}</span>
+                      <span class="rounded bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500 border border-slate-200">${acc.type}</span>
+                    </div>
+                    <div class="mt-1 text-[11px] font-mono text-slate-400">${acc.number}</div>
+                    <div class="mt-1.5 text-sm font-bold text-slate-900 tabular-currency">${formatIDR(bal)}</div>
+                  </div>`;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Recent transactions -->
+          <div class="lg:col-span-1 rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-bold text-slate-900">Transaksi Terbaru</h2>
+              <button onclick="navigate('transactions')" class="text-xs font-semibold text-teal-700 hover:underline">Semua →</button>
+            </div>
+            <div class="space-y-2">
+              ${txs.slice(0, 5).map(t => `
+                <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                  <div class="min-w-0 flex-1">
+                    <div class="text-xs font-medium text-slate-900 truncate">${t.description}</div>
+                    <div class="text-[11px] text-slate-400">${t.date} • ${t.reference}</div>
+                  </div>
+                  <div class="text-xs font-bold tabular-currency whitespace-nowrap ml-2 ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}">
+                    ${t.type === 'income' ? '+' : '-'}${formatIDR(t.amount)}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- TRANSACTIONS ----
+    function buildTransactionRows() {
+      let txs = getOrgTransactions();
+      if (DB.txFilterStatus !== 'ALL') txs = txs.filter(t => t.status === DB.txFilterStatus);
+      if (DB.txSearch.trim()) {
+        const q = DB.txSearch.toLowerCase();
+        txs = txs.filter(t => t.description.toLowerCase().includes(q) || t.reference.toLowerCase().includes(q) || t.category.toLowerCase().includes(q));
+      }
+      if (txs.length === 0) return `<tr><td colspan="7" class="py-8 text-center text-slate-500 text-sm">Tidak ada transaksi yang sesuai filter.</td></tr>`;
+      return txs.map(t => {
+        const acc = DB.accounts.find(a => a.id === t.accountId);
+        const canEdit = hasPermission('transactions.create') && ['Draft','Rejected'].includes(t.status);
+        return `
+          <tr class="hover:bg-slate-50/70">
+            <td class="py-3.5 px-4 whitespace-nowrap">
+              <div class="font-semibold text-slate-900">${t.date}</div>
+              <div class="text-[11px] font-mono text-slate-400">${t.reference}</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="font-medium text-slate-900">${t.description}</div>
+              <div class="text-[11px] text-slate-500">${t.category}</div>
+              ${t.rejectionReason ? `<div class="mt-1 text-[11px] text-rose-600 font-medium">Alasan Penolakan: ${t.rejectionReason}</div>` : ''}
+            </td>
+            <td class="py-3.5 px-4 whitespace-nowrap text-xs text-slate-600">${acc ? acc.name : '-'}</td>
+            <td class="py-3.5 px-4 whitespace-nowrap text-xs text-slate-600">${t.createdByName}</td>
+            <td class="py-3.5 px-4 whitespace-nowrap">${renderStatusBadge(t.status)}</td>
+            <td class="py-3.5 px-4 text-right font-bold tabular-currency whitespace-nowrap ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}">
+              ${t.type === 'income' ? '+' : '-'}${formatIDR(t.amount)}
+            </td>
+            <td class="py-3.5 px-4 text-right whitespace-nowrap">
+              ${canEdit ? `
+                <button onclick="openEditTransactionModal('${t.id}')" class="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 mr-1">Edit</button>
+                <button onclick="deleteTransaction('${t.id}')" class="rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50">Hapus</button>
+              ` : '<span class="text-[11px] text-slate-400">—</span>'}
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function renderTransactions() {
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="text-xs font-medium text-slate-500">Modul B / Pencatatan Kas & Operasional</div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Manajemen Transaksi</h1>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="exportTransactionsCSV()" class="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">Ekspor CSV</button>
+            ${hasPermission('transactions.create')
+              ? `<button onclick="openNewTransactionModal()" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-[#1C2541] transition">+ Tambah Transaksi</button>`
+              : `<span class="rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-500">Peran Anda tidak memiliki izin input transaksi</span>`}
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 flex flex-col sm:flex-row gap-3 justify-between">
+          <input id="tx-search-input" type="text" value="${DB.txSearch}" oninput="DB.txSearch=this.value; refreshTxTable();"
+            placeholder="Cari nomor referensi, kategori, atau deskripsi..."
+            class="w-full sm:max-w-xs rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm focus:border-[#0B132B] focus:ring-2 focus:ring-[#0B132B]/10 transition" />
+          <div class="flex flex-wrap gap-1.5">
+            ${['ALL','Approved','Pending Approval','Draft','Rejected'].map(st => `
+              <button onclick="DB.txFilterStatus='${st}'; refreshTxTable();" class="rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                DB.txFilterStatus === st ? 'bg-[#0B132B] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }">${st === 'ALL' ? 'Semua Status' : st}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <th class="py-3 px-4">Tanggal & Ref</th>
+                  <th class="py-3 px-4">Deskripsi & Kategori</th>
+                  <th class="py-3 px-4">Rekening</th>
+                  <th class="py-3 px-4">Maker</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Nominal</th>
+                  <th class="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tx-table-body" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                ${buildTransactionRows()}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function refreshTxTable() {
+      const tbody = document.getElementById('tx-table-body');
+      if (!tbody) { renderApp(); return; }
+      tbody.innerHTML = buildTransactionRows();
+      // re-render filter buttons active state
+      document.querySelectorAll('[onclick^="DB.txFilterStatus"]').forEach(b => {
+        const match = b.getAttribute('onclick').match(/DB\.txFilterStatus='([^']+)'/);
+        if (match) {
+          const st = match[1];
+          if (st === DB.txFilterStatus) b.className = 'rounded-lg px-3 py-1.5 text-xs font-semibold transition bg-[#0B132B] text-white';
+          else b.className = 'rounded-lg px-3 py-1.5 text-xs font-semibold transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        }
+      });
+    }
+
+    function openNewTransactionModal(txId = null) {
+      if (!hasPermission('transactions.create')) { showToast('Akses ditolak: Anda tidak memiliki izin membuat transaksi.', 'error'); return; }
+      const accounts = getOrgAccounts();
+      const projects = getOrgProjects();
+      const org = getCurrentOrg();
+      const requiresApproval = hasPlanFeature('approvalWorkflow');
+      const tx = txId ? DB.transactions.find(t => t.id === txId) : null;
+
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <h3 class="text-base font-bold text-slate-900">${tx ? 'Edit Transaksi' : 'Catat Transaksi Keuangan Baru'}</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+        </div>
+        <form onsubmit="submitTransaction(event, ${tx ? `'${tx.id}'` : 'null'})" class="p-6 space-y-4 text-sm">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Transaksi</label>
+              <select id="tx-type" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                <option value="expense" ${tx && tx.type === 'expense' ? 'selected' : ''}>Pengeluaran (Expense)</option>
+                <option value="income" ${tx && tx.type === 'income' ? 'selected' : ''}>Pemasukan (Income)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Nominal (IDR) *</label>
+              <input id="tx-amount" type="number" min="1000" step="100" required value="${tx ? tx.amount : ''}" placeholder="5000000" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm tabular-currency" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori *</label>
+              <select id="tx-category" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                ${['Pendapatan Jasa Proyek','Penjualan Produk','Infrastruktur Cloud & Domain','Gaji & Tenaga Ahli','Pemasaran & Akuisisi Klien','Operasional Kantor'].map(c => `<option ${tx && tx.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Rekening *</label>
+              <select id="tx-account" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                ${accounts.map(a => `<option value="${a.id}" ${tx && tx.accountId === a.id ? 'selected' : ''}>${a.name} (${formatIDR(computeAccountBalance(a.id))})</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Asosiasi Proyek (Opsional)</label>
+            <select id="tx-project" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+              <option value="">-- Tidak terkait proyek tertentu --</option>
+              ${projects.map(p => `<option value="${p.id}" ${tx && tx.projectId === p.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Transaksi *</label>
+            <input id="tx-desc" type="text" required value="${tx ? tx.description.replace(/"/g, '&quot;') : ''}" placeholder="Contoh: Pembayaran vendor server bulan November" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600">
+            ${requiresApproval
+              ? `<strong>Alur Persetujuan Aktif (Paket ${SUBSCRIPTION_PLANS[org.planCode].name}):</strong> Transaksi baru akan berstatus <em>Pending Approval</em>.`
+              : `<strong>Paket ${SUBSCRIPTION_PLANS[org.planCode].name}:</strong> Transaksi langsung dicatat sebagai <em>Approved</em>.`}
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700">Batal</button>
+            <button type="submit" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1C2541] transition">${tx ? 'Simpan Perubahan' : 'Simpan & Ajukan'}</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function submitTransaction(e, editId) {
+      e.preventDefault();
+      const role = getCurrentRole();
+      const requiresApproval = hasPlanFeature('approvalWorkflow');
+      const status = requiresApproval ? 'Pending Approval' : 'Approved';
+      const payload = {
+        type: document.getElementById('tx-type').value,
+        category: document.getElementById('tx-category').value,
+        amount: Number(document.getElementById('tx-amount').value),
+        description: document.getElementById('tx-desc').value,
+        accountId: document.getElementById('tx-account').value,
+        projectId: document.getElementById('tx-project').value
+      };
+
+      if (editId) {
+        const tx = DB.transactions.find(t => t.id === editId && t.organization_id === DB.activeOrgId);
+        Object.assign(tx, payload, {
+          status, rejectionReason: undefined,
+          approvedBy: status === 'Approved' ? role.userId : null,
+          approvedByName: status === 'Approved' ? role.userName : null,
+          approvedAt: status === 'Approved' ? 'Langsung (Auto-Approved)' : null
+        });
+        logAudit('transaction.updated', `Memperbarui transaksi ${tx.reference} (${formatIDR(tx.amount)})`);
+        showToast(`Transaksi ${tx.reference} diperbarui.`, 'success');
+      } else {
+        const refNum = 'TRX-' + new Date().getFullYear() + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(DB.transactions.length + 101).padStart(3, '0');
+        const newTx = {
+          id: 'tx_' + Date.now(), organization_id: DB.activeOrgId, date: new Date().toLocaleDateString('id-ID'),
+          reference: refNum, ...payload, status, createdBy: role.userId, createdByName: role.userName,
+          approvedBy: status === 'Approved' ? role.userId : null,
+          approvedByName: status === 'Approved' ? role.userName : null,
+          approvedAt: status === 'Approved' ? 'Langsung (Auto-Approved)' : null
+        };
+        DB.transactions.unshift(newTx);
+        logAudit('transaction.created', `Membuat transaksi ${refNum} (${formatIDR(newTx.amount)}) dengan status ${status}`);
+        showToast(status === 'Pending Approval' ? `Transaksi ${refNum} diajukan ke Pusat Persetujuan.` : `Transaksi ${refNum} berhasil dicatat.`, 'success');
+      }
+      closeModal();
+      renderApp();
+    }
+
+    function openEditTransactionModal(txId) { openNewTransactionModal(txId); }
+
+    function deleteTransaction(txId) {
+      const tx = DB.transactions.find(t => t.id === txId);
+      if (!tx) return;
+      confirmDialog('Hapus Transaksi', `Anda akan menghapus <strong>${tx.reference}</strong> (${formatIDR(tx.amount)}). Tindakan ini tidak dapat dibatalkan.`, () => {
+        DB.transactions = DB.transactions.filter(t => t.id !== txId);
+        logAudit('transaction.deleted', `Menghapus transaksi ${tx.reference}`);
+        showToast(`Transaksi ${tx.reference} dihapus.`, 'warning');
+        renderApp();
+      }, 'Ya, Hapus');
+    }
+
+    function exportTransactionsCSV() {
+      const txs = getOrgTransactions();
+      const headers = ['Tanggal','Referensi','Jenis','Kategori','Deskripsi','Status','Nominal_IDR'];
+      const rows = txs.map(t => [t.date, t.reference, t.type, `"${t.category}"`, `"${t.description.replace(/"/g,'""')}"`, t.status, t.amount]);
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url;
+      a.download = `terlahir-finance-transaksi-${getCurrentOrg().slug}.csv`; a.click();
+      URL.revokeObjectURL(url);
+      showToast('File CSV transaksi berhasil diunduh.', 'success');
+    }
+
+    // ---- APPROVALS ----
+    function renderApprovals() {
+      const txs = getOrgTransactions();
+      const pending = txs.filter(t => t.status === 'Pending Approval');
+      const history = txs.filter(t => ['Approved','Rejected'].includes(t.status));
+      const currentRole = getCurrentRole();
+      const canApprove = hasPermission('transactions.approve');
+
+      return `
+        <div>
+          <div class="text-xs font-medium text-slate-500">Modul M / Tata Kelola & Kontrol Internal</div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Pusat Persetujuan (Maker-Checker)</h1>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">Aturan Keamanan: Pembuat transaksi <strong>tidak dapat</strong> menyetujui transaksinya sendiri.</p>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-slate-900">Antrian Menunggu Persetujuan (${pending.length})</h2>
+            <span class="text-xs text-slate-500">Login sebagai: <strong>${currentRole.userName}</strong></span>
+          </div>
+          ${pending.length === 0
+            ? `<div class="rounded-xl bg-slate-50 p-6 text-center text-xs sm:text-sm text-slate-500">Tidak ada transaksi yang menunggu persetujuan.</div>`
+            : `<div class="space-y-3">
+                ${pending.map(t => {
+                  const isSelfCreated = t.createdBy === currentRole.userId;
+                  return `
+                    <div class="rounded-xl border border-amber-200 bg-amber-50/40 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span class="font-mono text-xs font-bold text-slate-700">${t.reference}</span>
+                          <span class="text-xs text-slate-400">•</span>
+                          <span class="text-xs text-slate-600">${t.date}</span>
+                          ${renderStatusBadge(t.status)}
+                        </div>
+                        <div class="text-sm font-bold text-slate-900">${t.description}</div>
+                        <div class="text-xs text-slate-600">Kategori: <strong>${t.category}</strong> • Diajukan oleh: <strong>${t.createdByName}</strong></div>
+                        <div class="text-base font-bold text-slate-900 tabular-currency pt-1">${formatIDR(t.amount)}</div>
+                      </div>
+                      <div class="flex flex-col items-start md:items-end gap-2">
+                        ${!canApprove
+                          ? `<span class="rounded-lg bg-slate-200/80 px-3 py-1.5 text-xs font-medium text-slate-600">Peran "${currentRole.name}" tidak memiliki wewenang Approve</span>`
+                          : isSelfCreated
+                            ? `<span class="rounded-lg bg-rose-100 px-3 py-1.5 text-xs font-semibold text-rose-800 border border-rose-200">Diblokir: Maker tidak boleh menyetujui transaksi sendiri</span>`
+                            : `<div class="flex items-center gap-2">
+                                <button onclick="openRejectModal('${t.id}')" class="rounded-xl border border-rose-300 bg-white px-3.5 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 transition">Tolak</button>
+                                <button onclick="approveTransaction('${t.id}')" class="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 shadow-sm transition">Setujui</button>
+                              </div>`
+                        }
+                      </div>
+                    </div>`;
+                }).join('')}
+              </div>`}
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
+          <h2 class="text-sm font-bold text-slate-900">Riwayat Keputusan Persetujuan</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-[11px] font-semibold uppercase text-slate-500">
+                  <th class="py-2.5 pr-3">Ref</th>
+                  <th class="py-2.5 px-3">Transaksi</th>
+                  <th class="py-2.5 px-3">Keputusan</th>
+                  <th class="py-2.5 px-3">Approver & Waktu</th>
+                  <th class="py-2.5 pl-3 text-right">Nominal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${history.length === 0
+                  ? `<tr><td colspan="5" class="py-6 text-center text-slate-500">Belum ada riwayat keputusan.</td></tr>`
+                  : history.map(h => `
+                    <tr>
+                      <td class="py-3 pr-3 font-mono text-xs">${h.reference}</td>
+                      <td class="py-3 px-3 font-medium text-slate-800">${h.description}</td>
+                      <td class="py-3 px-3">${renderStatusBadge(h.status)}</td>
+                      <td class="py-3 px-3 text-xs text-slate-600">${h.approvedByName || '-'}<br><span class="text-[11px] text-slate-400">${h.approvedAt || ''}</span></td>
+                      <td class="py-3 pl-3 text-right font-semibold tabular-currency">${formatIDR(h.amount)}</td>
+                    </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function approveTransaction(txId) {
+      const tx = DB.transactions.find(t => t.id === txId && t.organization_id === DB.activeOrgId);
+      const role = getCurrentRole();
+      if (!tx) return;
+      if (!hasPermission('transactions.approve')) { showToast('Akses ditolak: Anda tidak memiliki izin menyetujui transaksi.', 'error'); return; }
+      if (tx.createdBy === role.userId) { showToast('Pelanggaran Pemisahan Tugas: Anda tidak dapat menyetujui transaksi Anda sendiri.', 'error'); return; }
+      tx.status = 'Approved';
+      tx.approvedBy = role.userId; tx.approvedByName = role.userName;
+      tx.approvedAt = new Date().toLocaleDateString('id-ID') + ' ' + new Date().toTimeString().slice(0,5) + ' WIB';
+      logAudit('transaction.approved', `Menyetujui transaksi ${tx.reference} senilai ${formatIDR(tx.amount)}`);
+      showToast(`Transaksi ${tx.reference} disetujui dan masuk ke laporan keuangan.`, 'success');
+      renderApp();
+    }
+
+    function openRejectModal(txId) {
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">Tolak Transaksi</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="confirmRejectTransaction(event, '${txId}')" class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Alasan Penolakan (Wajib) *</label>
+            <textarea id="reject-reason" required rows="3" placeholder="Contoh: Lampiran kuitansi vendor belum sesuai dengan nilai tagihan..." class="w-full rounded-xl border border-slate-300 p-3 text-sm"></textarea>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700">Batal</button>
+            <button type="submit" class="rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-700 transition">Konfirmasi Penolakan</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function confirmRejectTransaction(e, txId) {
+      e.preventDefault();
+      const tx = DB.transactions.find(t => t.id === txId && t.organization_id === DB.activeOrgId);
+      const role = getCurrentRole();
+      const reason = document.getElementById('reject-reason').value.trim();
+      if (!tx || !reason) return;
+      tx.status = 'Rejected'; tx.rejectionReason = reason;
+      tx.approvedBy = role.userId; tx.approvedByName = role.userName;
+      tx.approvedAt = new Date().toLocaleDateString('id-ID') + ' ' + new Date().toTimeString().slice(0,5) + ' WIB';
+      logAudit('transaction.rejected', `Menolak transaksi ${tx.reference}. Alasan: ${reason}`);
+      closeModal();
+      showToast(`Transaksi ${tx.reference} ditolak.`, 'warning');
+      renderApp();
+    }
+
+    // ---- CASH & BANK ----
+    function renderCashBank() {
+      const accounts = getOrgAccounts();
+      const transfers = getOrgTransfers();
+      const totalSaldo = accounts.reduce((s, a) => s + computeAccountBalance(a.id), 0);
+
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="text-xs font-medium text-slate-500">Modul C / Likuiditas & Rekonsiliasi</div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Manajemen Kas & Bank</h1>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            ${hasPermission('accounts.manage') ? `
+              <button onclick="openNewAccountModal()" class="rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">+ Tambah Rekening</button>
+              <button onclick="openInternalTransferModal()" class="rounded-xl bg-[#0B132B] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#1C2541] transition">⇄ Transfer Antar Rekening</button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-[#0B132B] p-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="text-xs text-slate-300">Total Likuiditas Kas & Bank Terkonsolidasi</div>
+            <div class="mt-1 text-2xl sm:text-3xl font-bold tabular-currency">${formatIDR(totalSaldo)}</div>
+          </div>
+          <div class="text-xs text-teal-300 bg-teal-500/15 border border-teal-500/30 rounded-xl px-3.5 py-2">
+            Transfer internal antar akun tidak dicatat sebagai Pendapatan maupun Beban.
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          ${accounts.map(acc => `
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-3 relative group">
+              <div class="flex items-center justify-between">
+                <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">${acc.type}</span>
+                <span class="font-mono text-xs text-slate-400">${acc.number}</span>
+              </div>
+              <div class="text-base font-bold text-slate-900">${acc.name}</div>
+              <div class="pt-2 border-t border-slate-100">
+                <div class="text-[11px] text-slate-500">Saldo Terkini</div>
+                <div class="text-xl font-bold text-slate-900 tabular-currency">${formatIDR(computeAccountBalance(acc.id))}</div>
+                <div class="text-[11px] text-slate-400 mt-1">Saldo Awal: ${formatIDR(acc.openingBalance)}</div>
+              </div>
+              ${hasPermission('accounts.manage') ? `
+                <div class="pt-2 border-t border-slate-100 flex gap-2">
+                  <button onclick="openEditAccountModal('${acc.id}')" class="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50">Edit</button>
+                  <button onclick="deleteAccount('${acc.id}')" class="flex-1 rounded-lg border border-rose-300 px-2 py-1.5 text-[11px] font-semibold text-rose-700 hover:bg-rose-50">Hapus</button>
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
+          <h2 class="text-sm font-bold text-slate-900">Riwayat Transfer Internal</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-[11px] font-semibold uppercase text-slate-500">
+                  <th class="py-2.5 pr-3">Tanggal & Ref</th>
+                  <th class="py-2.5 px-3">Dari</th>
+                  <th class="py-2.5 px-3">Ke</th>
+                  <th class="py-2.5 px-3">Catatan</th>
+                  <th class="py-2.5 pl-3 text-right">Nominal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${transfers.length === 0
+                  ? `<tr><td colspan="5" class="py-6 text-center text-slate-500">Belum ada riwayat transfer internal.</td></tr>`
+                  : transfers.map(tr => {
+                      const fromAcc = DB.accounts.find(a => a.id === tr.fromAccountId);
+                      const toAcc = DB.accounts.find(a => a.id === tr.toAccountId);
+                      return `
+                        <tr>
+                          <td class="py-3 pr-3"><div class="font-semibold">${tr.date}</div><div class="font-mono text-[11px] text-slate-400">${tr.reference}</div></td>
+                          <td class="py-3 px-3 text-rose-700 font-medium">${fromAcc?.name || '-'}</td>
+                          <td class="py-3 px-3 text-emerald-700 font-medium">${toAcc?.name || '-'}</td>
+                          <td class="py-3 px-3 text-slate-600">${tr.note}</td>
+                          <td class="py-3 pl-3 text-right font-bold tabular-currency">${formatIDR(tr.amount)}</td>
+                        </tr>`;
+                    }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function openNewAccountModal(editId = null) {
+      const acc = editId ? DB.accounts.find(a => a.id === editId) : null;
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">${acc ? 'Edit Rekening' : 'Tambah Rekening Baru'}</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="submitAccount(event, ${acc ? `'${acc.id}'` : 'null'})" class="p-6 space-y-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Rekening *</label>
+            <input id="acc-name" type="text" required value="${acc ? acc.name.replace(/"/g,'&quot;') : ''}" placeholder="Bank BCA Bisnis Utama" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Tipe *</label>
+              <select id="acc-type" class="w-full rounded-xl border border-slate-300 px-3 py-2">
+                ${['Bank','Cash','Petty Cash','E-Wallet'].map(t => `<option ${acc && acc.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Rekening *</label>
+              <input id="acc-number" type="text" required value="${acc ? acc.number : ''}" placeholder="8820-9912-01" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Saldo Awal (IDR)</label>
+            <input id="acc-opening" type="number" min="0" value="${acc ? acc.openingBalance : 0}" class="w-full rounded-xl border border-slate-300 px-3 py-2 tabular-currency" />
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold">Batal</button>
+            <button type="submit" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1C2541] transition">${acc ? 'Simpan Perubahan' : 'Tambah Rekening'}</button>
+          </div>
+        </form>
+      `);
+    }
+    function openEditAccountModal(id) { openNewAccountModal(id); }
+
+    function submitAccount(e, editId) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('acc-name').value.trim(),
+        type: document.getElementById('acc-type').value,
+        number: document.getElementById('acc-number').value.trim(),
+        openingBalance: Number(document.getElementById('acc-opening').value) || 0
+      };
+      if (editId) {
+        Object.assign(DB.accounts.find(a => a.id === editId), payload);
+        showToast('Rekening berhasil diperbarui.', 'success');
+      } else {
+        DB.accounts.push({ id: 'acc_' + Date.now(), organization_id: DB.activeOrgId, ...payload });
+        showToast('Rekening baru berhasil ditambahkan.', 'success');
+      }
+      closeModal(); renderApp();
+    }
+
+    function deleteAccount(accId) {
+      const acc = DB.accounts.find(a => a.id === accId);
+      if (!acc) return;
+      const bal = computeAccountBalance(acc.id);
+      const hasTx = DB.transactions.some(t => t.accountId === accId) || DB.transfers.some(tr => tr.fromAccountId === accId || tr.toAccountId === accId);
+      if (hasTx) { showToast('Rekening tidak dapat dihapus karena masih memiliki transaksi terkait.', 'error'); return; }
+      if (bal !== 0) { showToast('Rekening tidak dapat dihapus karena saldo tidak nol.', 'error'); return; }
+      confirmDialog('Hapus Rekening', `Anda akan menghapus <strong>${acc.name}</strong>.`, () => {
+        DB.accounts = DB.accounts.filter(a => a.id !== accId);
+        showToast('Rekening dihapus.', 'warning');
+        renderApp();
+      }, 'Ya, Hapus');
+    }
+
+    function openInternalTransferModal() {
+      const accounts = getOrgAccounts();
+      if (accounts.length < 2) { showToast('Minimal dibutuhkan 2 rekening untuk transfer internal.', 'warning'); return; }
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">Transfer Internal Antar Kas / Bank</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="submitInternalTransfer(event)" class="p-6 space-y-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Dari Rekening Sumber *</label>
+            <select id="trf-from" class="w-full rounded-xl border border-slate-300 px-3 py-2">${accounts.map(a => `<option value="${a.id}">${a.name} (${formatIDR(computeAccountBalance(a.id))})</option>`).join('')}</select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Ke Rekening Tujuan *</label>
+            <select id="trf-to" class="w-full rounded-xl border border-slate-300 px-3 py-2">${accounts.slice().reverse().map(a => `<option value="${a.id}">${a.name} (${formatIDR(computeAccountBalance(a.id))})</option>`).join('')}</select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nominal Transfer (IDR) *</label>
+            <input id="trf-amount" type="number" min="1000" required placeholder="2000000" class="w-full rounded-xl border border-slate-300 px-3 py-2 tabular-currency" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan *</label>
+            <input id="trf-note" type="text" required placeholder="Contoh: Pemindahan dana operasional ke Kas Kecil" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold">Batal</button>
+            <button type="submit" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1C2541] transition">Proses Transfer</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function submitInternalTransfer(e) {
+      e.preventDefault();
+      const fromId = document.getElementById('trf-from').value;
+      const toId = document.getElementById('trf-to').value;
+      const amount = Number(document.getElementById('trf-amount').value);
+      const note = document.getElementById('trf-note').value;
+      if (fromId === toId) { showToast('Rekening sumber dan tujuan tidak boleh sama.', 'error'); return; }
+      if (computeAccountBalance(fromId) < amount) { showToast('Saldo rekening sumber tidak mencukupi.', 'error'); return; }
+      const ref = 'TRF-' + new Date().getFullYear() + '11-00' + (DB.transfers.length + 1);
+      DB.transfers.unshift({
+        id: 'trf_' + Date.now(), organization_id: DB.activeOrgId,
+        fromAccountId: fromId, toAccountId: toId, amount,
+        date: new Date().toLocaleDateString('id-ID'), reference: ref, note
+      });
+      logAudit('account.transfer', `Transfer internal ${ref} sebesar ${formatIDR(amount)}`);
+      closeModal();
+      showToast(`Transfer internal ${ref} berhasil.`, 'success');
+      renderApp();
+    }
+
+    // ---- INVOICES ----
+    function renderInvoices() {
+      const invoices = getOrgInvoices();
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="text-xs font-medium text-slate-500">Modul E & F / Penagihan & Piutang Usaha</div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Manajemen Invoice & Pembayaran Bertahap</h1>
+          </div>
+          ${hasPermission('invoices.manage') ? `<button onclick="openNewInvoiceModal()" class="rounded-xl bg-[#0B132B] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#1C2541] transition">+ Buat Invoice</button>` : ''}
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase text-slate-500">
+                  <th class="py-3 px-4">No. Invoice & Klien</th>
+                  <th class="py-3 px-4">Jatuh Tempo</th>
+                  <th class="py-3 px-4 text-right">Total (+PPN)</th>
+                  <th class="py-3 px-4 text-right">Sudah Dibayar</th>
+                  <th class="py-3 px-4 text-right">Sisa Tagihan</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${invoices.length === 0
+                  ? `<tr><td colspan="7" class="py-8 text-center text-slate-500">Belum ada invoice pada organisasi ini.</td></tr>`
+                  : invoices.map(inv => {
+                      const grand = inv.subtotal * (1 + inv.taxRate / 100);
+                      const remaining = Math.max(0, grand - inv.paidAmount);
+                      return `
+                        <tr>
+                          <td class="py-3.5 px-4">
+                            <div class="font-mono font-bold text-slate-900">${inv.number}</div>
+                            <div class="text-xs text-slate-600">${inv.clientName}</div>
+                          </td>
+                          <td class="py-3.5 px-4 text-xs text-slate-600">${inv.dueDate}</td>
+                          <td class="py-3.5 px-4 text-right font-semibold tabular-currency">${formatIDR(grand)}</td>
+                          <td class="py-3.5 px-4 text-right text-emerald-700 font-medium tabular-currency">${formatIDR(inv.paidAmount)}</td>
+                          <td class="py-3.5 px-4 text-right font-bold tabular-currency ${remaining > 0 ? 'text-rose-700' : 'text-slate-400'}">${formatIDR(remaining)}</td>
+                          <td class="py-3.5 px-4">${renderStatusBadge(inv.status)}</td>
+                          <td class="py-3.5 px-4 text-right">
+                            ${remaining > 0 && hasPermission('invoices.manage')
+                              ? `<button onclick="openRecordPaymentModal('${inv.id}')" class="rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-700 transition">+ Catat Bayar</button>`
+                              : `<span class="text-xs text-slate-400">Lunas</span>`}
+                          </td>
+                        </tr>`;
+                    }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function openNewInvoiceModal() {
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">Buat Invoice Baru</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="submitNewInvoice(event)" class="p-6 space-y-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Klien *</label>
+            <input id="inv-client" type="text" required placeholder="PT Contoh Klien" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Subtotal (IDR) *</label>
+              <input id="inv-subtotal" type="number" min="1000" required class="w-full rounded-xl border border-slate-300 px-3 py-2 tabular-currency" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">PPN (%)</label>
+              <input id="inv-tax" type="number" min="0" max="100" value="11" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Terbit *</label>
+              <input id="inv-issue" type="text" required value="${new Date().toLocaleDateString('id-ID')}" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Jatuh Tempo *</label>
+              <input id="inv-due" type="text" required placeholder="dd/mm/yyyy" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold">Batal</button>
+            <button type="submit" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1C2541] transition">Simpan Invoice</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function submitNewInvoice(e) {
+      e.preventDefault();
+      const number = 'INV/2026/11/' + String(DB.invoices.length + 4).padStart(3, '0');
+      DB.invoices.push({
+        id: 'inv_' + Date.now(),
+        organization_id: DB.activeOrgId,
+        number,
+        clientName: document.getElementById('inv-client').value.trim(),
+        issueDate: document.getElementById('inv-issue').value,
+        dueDate: document.getElementById('inv-due').value,
+        subtotal: Number(document.getElementById('inv-subtotal').value),
+        taxRate: Number(document.getElementById('inv-tax').value) || 0,
+        paidAmount: 0,
+        status: 'Sent'
+      });
+      closeModal();
+      showToast(`Invoice ${number} berhasil dibuat.`, 'success');
+      renderApp();
+    }
+
+    function openRecordPaymentModal(invId) {
+      const inv = DB.invoices.find(i => i.id === invId);
+      if (!inv) return;
+      const grand = inv.subtotal * (1 + inv.taxRate / 100);
+      const remaining = Math.max(0, grand - inv.paidAmount);
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">Catat Pembayaran ${inv.number}</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="submitInvoicePayment(event, '${inv.id}')" class="p-6 space-y-4 text-sm">
+          <div class="rounded-xl bg-slate-50 p-3.5 border border-slate-200 flex justify-between">
+            <span class="text-slate-600">Sisa Tagihan:</span>
+            <span class="font-bold text-rose-700 tabular-currency">${formatIDR(remaining)}</span>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nominal Pembayaran (IDR) *</label>
+            <input id="pay-amount" type="number" min="1000" max="${remaining}" value="${remaining}" required class="w-full rounded-xl border border-slate-300 px-3 py-2 tabular-currency" />
+            <p class="mt-1 text-[11px] text-slate-500">Mendukung DP atau pembayaran sebagian (Partially Paid).</p>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold">Batal</button>
+            <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition">Simpan Pembayaran</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function submitInvoicePayment(e, invId) {
+      e.preventDefault();
+      const inv = DB.invoices.find(i => i.id === invId);
+      const amount = Number(document.getElementById('pay-amount').value);
+      const grand = inv.subtotal * (1 + inv.taxRate / 100);
+      inv.paidAmount += amount;
+      inv.status = inv.paidAmount >= grand ? 'Paid' : 'Partially Paid';
+      logAudit('invoice.payment_recorded', `Mencatat pembayaran ${formatIDR(amount)} untuk ${inv.number}`);
+      closeModal();
+      showToast(`Pembayaran ${formatIDR(amount)} tercatat. Status: ${inv.status}.`, 'success');
+      renderApp();
+    }
+
+    // ---- PROJECTS ----
+    function renderProjects() {
+      const projects = getOrgProjects();
+      const approvedTxs = getOrgTransactions().filter(t => t.status === 'Approved');
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="text-xs font-medium text-slate-500">Modul G / Profitabilitas Proyek</div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Keuangan & Profitabilitas Proyek</h1>
+          </div>
+          ${hasPermission('projects.manage') ? `<button onclick="openNewProjectModal()" class="rounded-xl bg-[#0B132B] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#1C2541] transition">+ Tambah Proyek</button>` : ''}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          ${projects.length === 0
+            ? `<div class="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 md:col-span-2">Belum ada proyek pada organisasi ini.</div>`
+            : projects.map(p => {
+                const pIncome = approvedTxs.filter(t => t.projectId === p.id && t.type === 'income').reduce((s, t) => s + t.amount, 0);
+                const pExpense = approvedTxs.filter(t => t.projectId === p.id && t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+                const pProfit = pIncome - pExpense;
+                const budgetUsedPct = p.budget > 0 ? Math.min(100, Math.round((pExpense / p.budget) * 100)) : 0;
+                return `
+                  <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+                    <div class="flex items-start justify-between gap-2">
+                      <div>
+                        <div class="text-xs font-medium text-teal-700">${p.client}</div>
+                        <h3 class="text-base font-bold text-slate-900">${p.name}</h3>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 tabular-currency">${formatIDR(p.contractValue)}</span>
+                        ${hasPermission('projects.manage') ? `<button onclick="openEditProjectModal('${p.id}')" class="rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-50">Edit</button>` : ''}
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 text-xs">
+                      <div><div class="text-slate-500">Pemasukan</div><div class="font-bold text-emerald-700 tabular-currency mt-0.5">${formatIDR(pIncome)}</div></div>
+                      <div><div class="text-slate-500">Biaya</div><div class="font-bold text-rose-700 tabular-currency mt-0.5">${formatIDR(pExpense)}</div></div>
+                      <div><div class="text-slate-500">Profit</div><div class="font-bold text-slate-900 tabular-currency mt-0.5">${formatIDR(pProfit)}</div></div>
+                    </div>
+                    <div>
+                      <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-600">Realisasi Anggaran (${formatIDR(p.budget)})</span>
+                        <span class="font-bold ${budgetUsedPct > 85 ? 'text-rose-600' : 'text-slate-800'}">${budgetUsedPct}%</span>
+                      </div>
+                      <div class="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                        <div class="h-full rounded-full ${budgetUsedPct > 85 ? 'bg-rose-600' : 'bg-teal-600'}" style="width:${budgetUsedPct}%"></div>
+                      </div>
+                    </div>
+                  </div>`;
+              }).join('')}
+        </div>
+      `;
+    }
+
+    function openNewProjectModal(editId = null) {
+      const p = editId ? DB.projects.find(x => x.id === editId) : null;
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">${p ? 'Edit Proyek' : 'Tambah Proyek Baru'}</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="submitProject(event, ${p ? `'${p.id}'` : 'null'})" class="p-6 space-y-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Proyek *</label>
+            <input id="prj-name" type="text" required value="${p ? p.name.replace(/"/g,'&quot;') : ''}" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Klien *</label>
+            <input id="prj-client" type="text" required value="${p ? p.client : ''}" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Nilai Kontrak (IDR) *</label>
+              <input id="prj-contract" type="number" min="0" required value="${p ? p.contractValue : ''}" class="w-full rounded-xl border border-slate-300 px-3 py-2 tabular-currency" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Anggaran Biaya (IDR) *</label>
+              <input id="prj-budget" type="number" min="0" required value="${p ? p.budget : ''}" class="w-full rounded-xl border border-slate-300 px-3 py-2 tabular-currency" />
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold">Batal</button>
+            <button type="submit" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1C2541] transition">${p ? 'Simpan Perubahan' : 'Tambah Proyek'}</button>
+          </div>
+        </form>
+      `);
+    }
+    function openEditProjectModal(id) { openNewProjectModal(id); }
+
+    function submitProject(e, editId) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('prj-name').value.trim(),
+        client: document.getElementById('prj-client').value.trim(),
+        contractValue: Number(document.getElementById('prj-contract').value),
+        budget: Number(document.getElementById('prj-budget').value)
+      };
+      if (editId) { Object.assign(DB.projects.find(x => x.id === editId), payload); showToast('Proyek diperbarui.', 'success'); }
+      else { DB.projects.push({ id:'prj_' + Date.now(), organization_id: DB.activeOrgId, ...payload }); showToast('Proyek baru ditambahkan.', 'success'); }
+      closeModal(); renderApp();
+    }
+
+    // ---- BUDGETS ----
+    function renderBudgets() {
+      const budgets = getOrgBudgets();
+      const approvedExpenses = getOrgTransactions().filter(t => t.status === 'Approved' && t.type === 'expense');
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="text-xs font-medium text-slate-500">Modul H / Pengendalian Anggaran</div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Perencanaan & Realisasi Anggaran</h1>
+          </div>
+          ${hasPermission('budgets.manage') ? `<button onclick="openNewBudgetModal()" class="rounded-xl bg-[#0B132B] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#1C2541] transition">+ Tambah Anggaran</button>` : ''}
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+          ${budgets.length === 0
+            ? `<p class="text-sm text-slate-500">Belum ada alokasi anggaran pada organisasi ini.</p>`
+            : budgets.map(b => {
+                const actual = approvedExpenses.filter(t => t.category === b.category).reduce((s, t) => s + t.amount, 0);
+                const pct = b.allocated > 0 ? Math.round((actual / b.allocated) * 100) : 0;
+                const alert = pct >= 80;
+                return `
+                  <div class="rounded-xl border ${alert ? 'border-amber-300 bg-amber-50/40' : 'border-slate-200'} p-4 space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span class="text-xs font-bold text-slate-900">${b.department}</span>
+                        <span class="text-xs text-slate-500"> • ${b.category} (${b.period})</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        ${alert ? `<span class="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">Utilisasi ${pct}%</span>` : ''}
+                        ${hasPermission('budgets.manage') ? `<button onclick="openEditBudgetModal('${b.id}')" class="rounded-lg border border-slate-300 px-2 py-0.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50">Edit</button>` : ''}
+                      </div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-600 tabular-currency">
+                      <span>Terpakai: <strong>${formatIDR(actual)}</strong></span>
+                      <span>Pagu: <strong>${formatIDR(b.allocated)}</strong></span>
+                    </div>
+                    <div class="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                      <div class="h-full rounded-full ${pct >= 100 ? 'bg-rose-600' : alert ? 'bg-amber-500' : 'bg-[#0B132B]'}" style="width:${Math.min(100, pct)}%"></div>
+                    </div>
+                  </div>`;
+              }).join('')}
+        </div>
+      `;
+    }
+
+    function openNewBudgetModal(editId = null) {
+      const b = editId ? DB.budgets.find(x => x.id === editId) : null;
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">${b ? 'Edit Anggaran' : 'Tambah Anggaran Baru'}</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="submitBudget(event, ${b ? `'${b.id}'` : 'null'})" class="p-6 space-y-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Departemen *</label>
+            <input id="bdg-dept" type="text" required value="${b ? b.department : ''}" placeholder="Marketing" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori *</label>
+            <select id="bdg-category" class="w-full rounded-xl border border-slate-300 px-3 py-2">
+              ${['Pemasaran & Akuisisi Klien','Infrastruktur Cloud & Domain','Gaji & Tenaga Ahli','Operasional Kantor','Pendapatan Jasa Proyek','Penjualan Produk'].map(c => `<option ${b && b.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Pagu Anggaran (IDR) *</label>
+              <input id="bdg-alloc" type="number" min="0" required value="${b ? b.allocated : ''}" class="w-full rounded-xl border border-slate-300 px-3 py-2 tabular-currency" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Periode *</label>
+              <input id="bdg-period" type="text" required value="${b ? b.period : 'November 2026'}" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold">Batal</button>
+            <button type="submit" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1C2541] transition">${b ? 'Simpan Perubahan' : 'Tambah Anggaran'}</button>
+          </div>
+        </form>
+      `);
+    }
+    function openEditBudgetModal(id) { openNewBudgetModal(id); }
+
+    function submitBudget(e, editId) {
+      e.preventDefault();
+      const payload = {
+        department: document.getElementById('bdg-dept').value.trim(),
+        category: document.getElementById('bdg-category').value,
+        allocated: Number(document.getElementById('bdg-alloc').value),
+        period: document.getElementById('bdg-period').value.trim()
+      };
+      if (editId) { Object.assign(DB.budgets.find(x => x.id === editId), payload); showToast('Anggaran diperbarui.', 'success'); }
+      else { DB.budgets.push({ id:'bdg_' + Date.now(), organization_id: DB.activeOrgId, ...payload }); showToast('Anggaran baru ditambahkan.', 'success'); }
+      closeModal(); renderApp();
+    }
+
+    // ---- ACCOUNTING ----
+    function renderAccounting() {
+      if (!hasPlanFeature('doubleEntry')) {
+        const org = getCurrentOrg();
+        return `<div class="rounded-2xl border border-amber-300 bg-amber-50 p-6 space-y-3">
+          <h2 class="text-lg font-bold text-amber-950">Fitur Akuntansi Double-Entry Terkunci</h2>
+          <p class="text-sm text-amber-900">Paket <strong>${SUBSCRIPTION_PLANS[org.planCode].name}</strong> tidak mencakup Jurnal Umum & Neraca Saldo otomatis.</p>
+          <button onclick="navigate('settings')" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white">Kelola Paket</button>
+        </div>`;
+      }
+      const approvedTxs = getOrgTransactions().filter(t => t.status === 'Approved');
+      const transfers = getOrgTransfers();
+      const journals = [];
+      approvedTxs.forEach(t => {
+        const acc = DB.accounts.find(a => a.id === t.accountId);
+        const accName = acc ? `1101 - ${acc.name}` : '1101 - Kas & Bank';
+        if (t.type === 'income') {
+          journals.push({ date: t.date, ref: 'JRN-' + t.reference, desc: t.description, lines: [
+            { account: accName, debit: t.amount, credit: 0 },
+            { account: `4101 - ${t.category}`, debit: 0, credit: t.amount }
+          ]});
+        } else {
+          journals.push({ date: t.date, ref: 'JRN-' + t.reference, desc: t.description, lines: [
+            { account: `5101 - ${t.category}`, debit: t.amount, credit: 0 },
+            { account: accName, debit: 0, credit: t.amount }
+          ]});
+        }
+      });
+      transfers.forEach(tr => {
+        const fromAcc = DB.accounts.find(a => a.id === tr.fromAccountId);
+        const toAcc = DB.accounts.find(a => a.id === tr.toAccountId);
+        journals.push({ date: tr.date, ref: 'JRN-' + tr.reference, desc: `Transfer Internal: ${tr.note}`, lines: [
+          { account: `1102 - ${toAcc?.name || 'Kas Tujuan'}`, debit: tr.amount, credit: 0 },
+          { account: `1101 - ${fromAcc?.name || 'Kas Sumber'}`, debit: 0, credit: tr.amount }
+        ]});
+      });
+      const totalDebit = journals.reduce((s, j) => s + j.lines.reduce((x, l) => x + l.debit, 0), 0);
+      const totalCredit = journals.reduce((s, j) => s + j.lines.reduce((x, l) => x + l.credit, 0), 0);
+      return `
+        <div>
+          <div class="text-xs font-medium text-slate-500">Modul I / Pembukuan Berpasangan (Double-Entry)</div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Jurnal Umum & Neraca Saldo</h1>
+        </div>
+        <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="text-xs sm:text-sm font-semibold text-emerald-950">Status: ${totalDebit === totalCredit ? '✓ SEIMBANG (BALANCED)' : '✕ TIDAK SEIMBANG'}</div>
+          <div class="flex gap-6 text-xs sm:text-sm tabular-currency">
+            <span>Total Debit: <strong>${formatIDR(totalDebit)}</strong></span>
+            <span>Total Kredit: <strong>${formatIDR(totalCredit)}</strong></span>
+          </div>
+        </div>
+        <div class="space-y-4">
+          ${journals.length === 0
+            ? `<div class="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">Belum ada jurnal dari transaksi yang disetujui.</div>`
+            : journals.map(j => `
+              <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex flex-wrap justify-between text-xs">
+                  <span class="font-bold text-slate-900">${j.date} • <span class="font-mono text-teal-700">${j.ref}</span> — ${j.desc}</span>
+                  <span class="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">Posted</span>
+                </div>
+                <table class="w-full text-xs sm:text-sm">
+                  <tbody class="divide-y divide-slate-100">
+                    ${j.lines.map(l => `<tr>
+                      <td class="py-2.5 px-4 ${l.credit > 0 ? 'pl-10 text-slate-600' : 'font-medium text-slate-900'}">${l.account}</td>
+                      <td class="py-2.5 px-4 text-right tabular-currency w-40">${l.debit > 0 ? formatIDR(l.debit) : '-'}</td>
+                      <td class="py-2.5 px-4 text-right tabular-currency w-40">${l.credit > 0 ? formatIDR(l.credit) : '-'}</td>
+                    </tr>`).join('')}
+                  </tbody>
+                </table>
+              </div>`).join('')}
+        </div>
+      `;
+    }
+
+    // ---- REPORTS ----
+    function renderReports() {
+      const org = getCurrentOrg();
+      const approvedTxs = getOrgTransactions().filter(t => t.status === 'Approved');
+      const accounts = getOrgAccounts();
+      const revItems = approvedTxs.filter(t => t.type === 'income');
+      const expItems = approvedTxs.filter(t => t.type === 'expense');
+      const totalRev = revItems.reduce((s, t) => s + t.amount, 0);
+      const totalExp = expItems.reduce((s, t) => s + t.amount, 0);
+      const netIncome = totalRev - totalExp;
+      const totalCashAssets = accounts.reduce((s, a) => s + computeAccountBalance(a.id), 0);
+      const openingEquity = accounts.reduce((s, a) => s + a.openingBalance, 0);
+
+      return `
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="text-xs font-medium text-slate-500">Modul J / Pelaporan Keuangan Konsisten</div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Laporan Laba Rugi & Neraca — ${org.name}</h1>
+          </div>
+          <button onclick="window.print()" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition no-print">🖨 Cetak / Simpan PDF</button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
+            <div class="border-b border-slate-200 pb-3">
+              <h2 class="text-base font-bold text-slate-900">Laporan Laba Rugi (Profit & Loss)</h2>
+              <p class="text-xs text-slate-500">Basis Kas Terverifikasi (Hanya Transaksi Approved)</p>
+            </div>
+            <div class="space-y-2 text-xs sm:text-sm">
+              <div class="font-bold text-slate-700">PENDAPATAN USAHA</div>
+              ${revItems.length === 0 ? `<div class="text-slate-400 pl-3 italic">Belum ada pendapatan.</div>` : revItems.map(r => `
+                <div class="flex justify-between pl-3 text-slate-600"><span class="truncate">${r.description}</span><span class="tabular-currency whitespace-nowrap ml-2">${formatIDR(r.amount)}</span></div>
+              `).join('')}
+              <div class="flex justify-between font-bold text-emerald-700 pt-1 border-t border-slate-100"><span>Total Pendapatan</span><span class="tabular-currency">${formatIDR(totalRev)}</span></div>
+            </div>
+            <div class="space-y-2 text-xs sm:text-sm pt-2">
+              <div class="font-bold text-slate-700">BEBAN OPERASIONAL</div>
+              ${expItems.length === 0 ? `<div class="text-slate-400 pl-3 italic">Belum ada beban.</div>` : expItems.map(e => `
+                <div class="flex justify-between pl-3 text-slate-600"><span class="truncate">${e.description}</span><span class="tabular-currency whitespace-nowrap ml-2">${formatIDR(e.amount)}</span></div>
+              `).join('')}
+              <div class="flex justify-between font-bold text-rose-700 pt-1 border-t border-slate-100"><span>Total Beban</span><span class="tabular-currency">(${formatIDR(totalExp)})</span></div>
+            </div>
+            <div class="rounded-xl bg-slate-900 p-4 text-white flex justify-between items-center">
+              <span class="text-xs sm:text-sm font-semibold">LABA BERSIH</span>
+              <span class="text-base sm:text-lg font-bold tabular-currency">${formatIDR(netIncome)}</span>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
+            <div class="border-b border-slate-200 pb-3">
+              <h2 class="text-base font-bold text-slate-900">Neraca Keuangan (Balance Sheet)</h2>
+              <p class="text-xs text-slate-500">Aset = Liabilitas + Ekuitas</p>
+            </div>
+            <div class="space-y-2 text-xs sm:text-sm">
+              <div class="font-bold text-slate-700">ASET LANCAR</div>
+              ${accounts.map(a => `<div class="flex justify-between pl-3 text-slate-600"><span class="truncate">${a.name}</span><span class="tabular-currency whitespace-nowrap ml-2">${formatIDR(computeAccountBalance(a.id))}</span></div>`).join('')}
+              <div class="flex justify-between font-bold text-slate-900 pt-1 border-t border-slate-100"><span>Total Aset</span><span class="tabular-currency">${formatIDR(totalCashAssets)}</span></div>
+            </div>
+            <div class="space-y-2 text-xs sm:text-sm pt-2">
+              <div class="font-bold text-slate-700">EKUITAS</div>
+              <div class="flex justify-between pl-3 text-slate-600"><span>Modal Disetor & Saldo Awal</span><span class="tabular-currency">${formatIDR(openingEquity)}</span></div>
+              <div class="flex justify-between pl-3 text-slate-600"><span>Laba Ditahan Periode Berjalan</span><span class="tabular-currency">${formatIDR(netIncome)}</span></div>
+              <div class="flex justify-between font-bold text-slate-900 pt-1 border-t border-slate-100"><span>Total Ekuitas</span><span class="tabular-currency">${formatIDR(openingEquity + netIncome)}</span></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- SETTINGS ----
+    function renderSettings() {
+      const org = getCurrentOrg();
+      const logs = getOrgAuditLogs();
+      return `
+        <div>
+          <div class="text-xs font-medium text-slate-500">Modul N / Administrasi Organisasi & Paket SaaS</div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">Pengaturan Organisasi & Langganan</h1>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Paket Langganan: ${SUBSCRIPTION_PLANS[org.planCode].name}</h2>
+              <p class="text-xs text-slate-500">Status: <strong class="uppercase text-emerald-700">${org.subscriptionStatus}</strong> • Siklus berakhir: ${org.periodEnd}</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            ${['free','starter','pro','business'].map(code => {
+              const p = SUBSCRIPTION_PLANS[code];
+              const isCurrent = org.planCode === code;
+              return `
+                <div class="rounded-xl border ${isCurrent ? 'border-[#0B132B] bg-slate-50 ring-1 ring-[#0B132B]' : 'border-slate-200'} p-4 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-slate-900">${p.name}</span>
+                      ${isCurrent ? `<span class="rounded bg-[#0B132B] px-2 py-0.5 text-[10px] text-white">Aktif</span>` : ''}
+                    </div>
+                    <div class="mt-2 text-lg font-bold text-slate-900 tabular-currency">${formatIDR(p.price)}<span class="text-xs font-normal text-slate-500">/bln</span></div>
+                    <ul class="mt-3 space-y-1 text-[11px] text-slate-600">
+                      <li>• Maks. ${p.limits.maxMembers} anggota</li>
+                      <li>• Maks. ${p.limits.maxAccounts} rekening</li>
+                      <li>• Double-Entry: ${p.features.doubleEntry ? '✓' : '✗'}</li>
+                      <li>• Approval Workflow: ${p.features.approvalWorkflow ? '✓' : '✗'}</li>
+                    </ul>
+                  </div>
+                  <button onclick="changeOrgPlan('${code}')" ${isCurrent ? 'disabled' : ''} class="mt-4 w-full rounded-lg py-2 text-xs font-semibold ${isCurrent ? 'bg-slate-200 text-slate-500 cursor-default' : 'bg-[#0B132B] text-white hover:bg-[#1C2541] transition'}">${isCurrent ? 'Paket Saat Ini' : 'Pilih Paket Ini'}</button>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 space-y-3">
+          <h2 class="text-base font-bold text-slate-900">Jejak Audit Keamanan (Audit Logs)</h2>
+          <div class="divide-y divide-slate-100 text-xs sm:text-sm max-h-96 overflow-y-auto">
+            ${logs.length === 0
+              ? `<div class="py-6 text-center text-sm text-slate-500">Belum ada aktivitas tercatat.</div>`
+              : logs.map(l => `<div class="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div><span class="font-mono text-xs font-semibold text-teal-700">${l.action}</span> — <span class="text-slate-800">${l.detail}</span></div>
+                  <div class="text-[11px] text-slate-400 whitespace-nowrap">${l.actor} • ${l.timestamp}</div>
+                </div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function changeOrgPlan(newPlan) {
+      if (!hasPermission('billing.manage')) { showToast('Hanya Organization Owner / Head of Finance yang dapat mengubah paket.', 'error'); return; }
+      const org = getCurrentOrg();
+      org.planCode = newPlan;
+      org.subscriptionStatus = 'active';
+      logAudit('subscription.changed', `Mengubah paket langganan ke ${SUBSCRIPTION_PLANS[newPlan].name}`);
+      showToast(`Paket langganan diperbarui ke ${SUBSCRIPTION_PLANS[newPlan].name}.`, 'success');
+      renderApp();
+    }
+
+    // ---- SUPER ADMIN ----
+    function renderSuperAdmin() {
+      const totalOrgs = DB.organizations.length;
+      const paidOrgs = DB.organizations.filter(o => o.planCode !== 'free').length;
+      const mrr = DB.organizations.reduce((s, o) => s + (SUBSCRIPTION_PLANS[o.planCode]?.price || 0), 0);
+      return `
+        <div class="rounded-2xl border border-amber-300 bg-amber-50/70 p-4 flex items-center justify-between gap-4">
+          <div class="text-xs sm:text-sm text-amber-950">
+            <strong>Isolasi Keamanan Super Admin:</strong> Panel ini hanya menampilkan metrik langganan & metadata tenant. Data keuangan internal pelanggan <strong>tidak dapat diakses</strong>.
+          </div>
+          <button onclick="navigate('dashboard')" class="shrink-0 rounded-xl bg-[#0B132B] px-3.5 py-2 text-xs font-semibold text-white">← Workspace</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="rounded-2xl border border-slate-200 bg-white p-5"><div class="text-xs font-medium text-slate-500">Total Organisasi</div><div class="mt-2 text-2xl font-bold text-slate-900">${totalOrgs} Tenant</div></div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5"><div class="text-xs font-medium text-slate-500">Langganan Berbayar</div><div class="mt-2 text-2xl font-bold text-teal-700">${paidOrgs}</div></div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-5"><div class="text-xs font-medium text-slate-500">MRR</div><div class="mt-2 text-2xl font-bold text-slate-900 tabular-currency">${formatIDR(mrr)}</div></div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-200 font-bold text-sm text-slate-900">Direktori Tenant SaaS</div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase text-slate-500">
+                  <th class="py-3 px-4">Nama Organisasi</th><th class="py-3 px-4">Industri</th><th class="py-3 px-4">Paket</th><th class="py-3 px-4">Status</th><th class="py-3 px-4 text-right">Data Internal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${DB.organizations.map(o => `<tr>
+                  <td class="py-3.5 px-4 font-semibold text-slate-900">${o.name}<div class="font-mono text-[11px] text-slate-400">${o.slug}</div></td>
+                  <td class="py-3.5 px-4 text-slate-600">${o.industry}</td>
+                  <td class="py-3.5 px-4 font-semibold uppercase">${o.planCode}</td>
+                  <td class="py-3.5 px-4">${renderStatusBadge(o.subscriptionStatus)}</td>
+                  <td class="py-3.5 px-4 text-right text-xs font-mono text-slate-400">ENCRYPTED / RLS ISOLATED</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- NEW ORG MODAL ----
+    function openNewOrgModal() {
+      openModal(`
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">Buat Organisasi Baru</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700">✕</button>
+        </div>
+        <form onsubmit="submitNewOrganization(event)" class="p-6 space-y-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Perusahaan *</label>
+            <input id="new-org-name" type="text" required placeholder="PT Maju Karya Mandiri" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Bidang Industri *</label>
+            <input id="new-org-industry" type="text" required placeholder="Agensi Digital / Perdagangan" class="w-full rounded-xl border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Paket Awal</label>
+            <select id="new-org-plan" class="w-full rounded-xl border border-slate-300 px-3 py-2">
+              <option value="free">Free (Rp 0/bulan)</option>
+              <option value="starter" selected>Starter (Rp 49.000/bulan)</option>
+              <option value="pro">Pro (Rp 149.000/bulan)</option>
+              <option value="business">Business (Rp 349.000/bulan)</option>
+            </select>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closeModal()" class="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold">Batal</button>
+            <button type="submit" class="rounded-xl bg-[#0B132B] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1C2541] transition">Buat Ruang Kerja</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function submitNewOrganization(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-org-name').value.trim();
+      const industry = document.getElementById('new-org-industry').value.trim();
+      const planCode = document.getElementById('new-org-plan').value;
+      const newId = 'org_' + Date.now();
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      DB.organizations.push({ id:newId, name, slug, npwp:'-', industry, planCode, subscriptionStatus: planCode === 'free' ? 'active' : 'trialing', periodEnd:'15/12/2026' });
+      DB.accounts.push({ id:'acc_' + Date.now(), organization_id:newId, name:'Kas Utama Operasional', type:'Cash', number:'CASH-INIT', openingBalance:0 });
+      DB.activeOrgId = newId;
+      DB.currentRoute = 'dashboard';
+      closeModal();
+      showToast(`Organisasi "${name}" berhasil dibuat.`, 'success');
+      renderApp();
+    }
+
+    // =========================================================================
+    // 7. MAIN DISPATCHER
+    // =========================================================================
+    function renderApp() {
+      // Permission guard: if route no longer accessible
+      const nav = NAV_ITEMS.find(n => n.id === DB.currentRoute);
+      if (nav && nav.permission && !hasPermission(nav.permission)) DB.currentRoute = 'dashboard';
+
+      renderShell();
+      const routes = {
+        dashboard: renderDashboard, transactions: renderTransactions, approvals: renderApprovals,
+        cash_bank: renderCashBank, invoices: renderInvoices, projects: renderProjects,
+        budgets: renderBudgets, accounting: renderAccounting, reports: renderReports,
+        settings: renderSettings, super_admin: renderSuperAdmin
+      };
+      const main = document.getElementById('main-content');
+      const renderer = routes[DB.currentRoute] || renderDashboard;
+      main.innerHTML = renderer();
+      main.classList.remove('animate-fade-in');
+      void main.offsetWidth;
+      main.classList.add('animate-fade-in');
+    }
+
+    window.addEventListener('DOMContentLoaded', renderApp);
+  </script>
+</body>
+</html>
